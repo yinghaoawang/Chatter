@@ -6,13 +6,37 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+let usersTyping = [];
+
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  let nickname = null;
   socket.on('disconnect', () => {
-    console.log('user disconnected');
+    if (nickname != null) {
+      io.emit('system message', nickname + ' has disconnected');
+    }
   });
-  socket.on('chat message', (message) => {
-    io.emit('chat message', message);
+
+  socket.on('set nickname', (nick) => {
+    nickname = nick;
+    io.emit('system message', nickname + ' has connected');
+  });
+
+  socket.on('chat message', (nickname, message) => {
+    io.emit('chat message', nickname, message);
+  });
+
+  socket.on('typing', (nickname) => {
+    if (!usersTyping.includes(nickname)) {
+      usersTyping.push(nickname);
+      io.emit('typing', usersTyping);
+    }
+  });
+
+  socket.on('stoptyping', (nickname) => {
+    if (usersTyping.includes(nickname)) {
+      usersTyping.splice(usersTyping.indexOf(nickname), 1);
+      io.emit('typing', usersTyping);
+    }
   });
 });
 

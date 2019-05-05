@@ -2,23 +2,63 @@
 <html>
   <body>
     <ul id="messages"></ul>
-    <form action="">
+    <form id="nickform" action="">
+      <label>Enter a nickname</label>
+      <input id="n" autocomplete="off" /><button>Submit</button>
+    </form>
+    <form id="mform" action="">
       <input id="m" autocomplete="off" /><button>Send</button>
+      <p id="isTyping"></p>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(() => {
         let socket = io();
-        $('form').submit((e) => {
+        let nickname = null;
+        let lastTyped = Number.NEGATIVE_INFINITY;
+        console.log(lastTyped);
+        $('#mform').hide();
+
+        $('#nickform').submit((e) => {
           e.preventDefault();
-          socket.emit('chat message', $('#m').val());
+          let nickText = $('#n').val().trim();
+          if (nickText.length > 0) {
+            nickname = nickText;
+            socket.emit('set nickname', nickname);
+            $('#mform').show();
+            $('#nickform').remove();
+          }
+        });
+
+        $('#m').keypress((e) => {
+          if (nickname == null) return;
+          socket.emit('typing', nickname);
+        });
+
+        $('#mform').submit((e) => {
+          e.preventDefault();
+          if (nickname == null) return;
+          socket.emit('chat message', nickname, $('#m').val());
+          socket.emit('stoptyping', nickname);
           $('#m').val('');
           return false;
         });
 
-      socket.on('chat message', (message) => {
+      socket.on('chat message', (nickname, message) => {
+        $('#messages').append($('<li>').text(nickname + ': ' + message));
+      });
+
+      socket.on('system message', (message) => {
         $('#messages').append($('<li>').text(message));
+      });
+
+      socket.on('typing', (usersTyping) => {
+        let text = '';
+        usersTyping.forEach(user => {
+          text += user + ' is typing...\n';
+        });
+        $('#isTyping').text(text);
       });
     });
     </script>
