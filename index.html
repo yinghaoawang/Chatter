@@ -3,7 +3,7 @@
   <body>
     <ul id="messages"></ul>
     <form id="nickform" action="">
-      <label>Enter a nickname</label>
+      <label id="nlabel">Enter a nickname</label>
       <input id="n" autocomplete="off" /><button>Submit</button>
     </form>
     <form id="mform" action="">
@@ -17,7 +17,6 @@
         let socket = io();
         let nickname = null;
         let lastTyped = Number.NEGATIVE_INFINITY;
-        console.log(lastTyped);
         $('#mform').hide();
 
         $('#nickform').submit((e) => {
@@ -26,8 +25,7 @@
           if (nickText.length > 0) {
             nickname = nickText;
             socket.emit('set nickname', nickname);
-            $('#mform').show();
-            $('#nickform').remove();
+            $('#nickform button').attr('disabled', true);
           }
         });
 
@@ -45,6 +43,16 @@
           return false;
         });
 
+        socket.on('nickname validity', (nickIsValid) => {
+          if (nickIsValid) {
+            $('#mform').show();
+            $('#nickform').remove();
+          } else {
+            $('#nickform button').attr('disabled', false);
+            $('#nlabel').text('Nickname taken');
+          }
+        });
+
       socket.on('chat message', (nickname, message) => {
         $('#messages').append($('<li>').text(nickname + ': ' + message));
       });
@@ -56,7 +64,9 @@
       socket.on('typing', (usersTyping) => {
         let text = '';
         usersTyping.forEach(user => {
-          text += user + ' is typing...\n';
+          if (user != nickname) {
+            text += user + ' is typing...\n';
+          }
         });
         $('#isTyping').text(text);
       });
