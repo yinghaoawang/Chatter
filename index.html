@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
   <body>
-    <ul id="messages"></ul>
     <form id="nickform" action="">
       <label id="nlabel">Enter a nickname</label>
       <input id="n" autocomplete="off" /><button>Submit</button>
     </form>
     <form id="mform" action="">
+      <ul id="messages"></ul>
       <input id="m" autocomplete="off" /><button>Send</button>
       <p id="isTyping"></p>
       <p id="isOnline"></p>
@@ -55,11 +55,20 @@
         });
 
         socket.on('users online', (users) => {
-          let text = 'Online: ';
+          let innerHtml = 'Online: ';
           users.forEach(user => {
-              text += user + ' ';
+            if (user == nickname) {
+              innerHtml += user + ' ';
+            } else {
+              innerHtml += '<a href="#" id="' + user + '">' + user + '</a> ';
+            }
           });
-          $('#isOnline').text(text);
+          $('#isOnline').html(innerHtml);
+          users.forEach(user => {
+            $('#' + user).click(() => {
+              $('#m').val('/w ' + user + ' ').focus();
+            });
+          });
         });
 
         socket.on('chat message', (nickname, message) => {
