@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Online chat app using Socket.IO",
   "scripts": {
+    "start": "node index.js",
     "devstart": "nodemon index.js"
   },
   "dependencies": {
