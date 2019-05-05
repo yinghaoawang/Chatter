@@ -1,0 +1,14 @@
+{
+  "name": "chatter",
+  "version": "0.0.1",
+  "description": "Online chat app using Socket.IO",
+  "scripts": {
+    "devstart": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.0"
+  }
+}
