@@ -9,6 +9,7 @@
     <form id="mform" action="">
       <input id="m" autocomplete="off" /><button>Send</button>
       <p id="isTyping"></p>
+      <p id="isOnline"></p>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -49,28 +50,36 @@
             $('#nickform').remove();
           } else {
             $('#nickform button').attr('disabled', false);
-            $('#nlabel').text('Nickname taken');
+            $('#nlabel').text('Invalid or taken nickname');
           }
         });
 
-      socket.on('chat message', (nickname, message) => {
-        $('#messages').append($('<li>').text(nickname + ': ' + message));
-      });
-
-      socket.on('system message', (message) => {
-        $('#messages').append($('<li>').text(message));
-      });
-
-      socket.on('typing', (usersTyping) => {
-        let text = '';
-        usersTyping.forEach(user => {
-          if (user != nickname) {
-            text += user + ' is typing...\n';
-          }
+        socket.on('users online', (users) => {
+          let text = 'Online: ';
+          users.forEach(user => {
+              text += user + ' ';
+          });
+          $('#isOnline').text(text);
         });
-        $('#isTyping').text(text);
+
+        socket.on('chat message', (nickname, message) => {
+          $('#messages').append($('<li>').text(nickname + ': ' + message));
+        });
+
+        socket.on('system message', (message) => {
+          $('#messages').append($('<li>').text(message));
+        });
+
+        socket.on('typing', (usersTyping) => {
+          let text = '';
+          usersTyping.forEach(user => {
+            if (user != nickname) {
+              text += user + ' is typing...\n';
+            }
+          });
+          $('#isTyping').text(text);
+        });
       });
-    });
     </script>
   </body>
 </html>

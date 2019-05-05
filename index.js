@@ -11,21 +11,24 @@ let usersTyping = [];
 
 io.on('connection', (socket) => {
   let nickname = null;
+
   socket.on('disconnect', () => {
     if (nickname != null) {
       socket.broadcast.emit('system message', nickname + ' has disconnected');
       usersTyping.splice(usersTyping.indexOf(nickname), 1);
+      io.emit('users online', users);
     }
   });
 
   socket.on('set nickname', (nick) => {
-    if (users.includes(nick)) {
+    if (users.includes(nick) || nick.match(/[^0-9a-z]/i)) {
       socket.emit('nickname validity', false);
       return;
     }
     nickname = nick;
     users.push(nickname);
     socket.broadcast.emit('system message', nickname + ' has connected');
+    io.emit('users online', users);
     socket.emit('nickname validity', true);
   });
 
