@@ -21,6 +21,7 @@ io.on('connection', (socket) => {
       // todo
       delete userSocketMap[nickname];
       io.emit('users online', users);
+      nickname = null;
     }
   });
 
