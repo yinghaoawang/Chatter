@@ -16,36 +16,34 @@
     <script>
       $(() => {
         let socket = io();
-        let nickname = null;
         let lastTyped = Number.NEGATIVE_INFINITY;
+        let nickname = null;
         $('#mform').hide();
 
         $('#nickform').submit((e) => {
           e.preventDefault();
-          let nickText = $('#n').val().trim();
-          if (nickText.length > 0) {
-            nickname = nickText;
-            socket.emit('set nickname', nickname);
+          let nicknameText = $('#n').val().trim();
+          if (nicknameText.length > 0) {
+            nickname = nicknameText;
+            socket.emit('set nickname', nicknameText);
             $('#nickform button').attr('disabled', true);
           }
         });
 
         $('#m').keypress((e) => {
-          if (nickname == null) return;
-          socket.emit('typing', nickname);
+          socket.emit('typing');
         });
 
         $('#mform').submit((e) => {
           e.preventDefault();
-          if (nickname == null) return;
-          socket.emit('chat message', nickname, $('#m').val());
-          socket.emit('stoptyping', nickname);
+          socket.emit('chat message', $('#m').val());
+          socket.emit('stoptyping');
           $('#m').val('');
           return false;
         });
 
-        socket.on('nickname validity', (nickIsValid) => {
-          if (nickIsValid) {
+        socket.on('nickname validity', (isValid) => {
+          if (isValid) {
             $('#mform').show();
             $('#nickform').remove();
           } else {
