@@ -1,92 +1,96 @@
 <!doctype html>
 <html>
-  <body>
-    <form id="nickform" action="">
-      <label id="nlabel">Enter a nickname</label>
-      <input id="n" autocomplete="off" /><button>Submit</button>
-    </form>
-    <form id="mform" action="">
-      <ul id="messages"></ul>
-      <input id="m" autocomplete="off" /><button>Send</button>
-      <p id="isTyping"></p>
-      <p id="isOnline"></p>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-      $(() => {
-        let socket = io();
-        let lastTyped = Number.NEGATIVE_INFINITY;
-        let nickname = null;
-        $('#mform').hide();
+    <body>
+        <form id="nickform" action="">
+            <label id="nlabel">Enter a nickname</label>
+            <input id="n" autocomplete="off" /><button>Submit</button>
+        </form>
+        <form id="mform" action="">
+            <ul id="messages"></ul>
+            <input id="m" autocomplete="off" /><button>Send</button>
+            <p id="isTyping"></p>
+            <p id="isOnline"></p>
+        </form>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script>
+            $(() => {
+                let socket = io();
+                let lastTyped = Number.NEGATIVE_INFINITY;
+                let nickname = null;
+                $('#mform').hide();
 
-        $('#nickform').submit((e) => {
-          e.preventDefault();
-          let nicknameText = $('#n').val().trim();
-          if (nicknameText.length > 0) {
-            nickname = nicknameText;
-            socket.emit('set nickname', nicknameText);
-            $('#nickform button').attr('disabled', true);
-          }
-        });
+                $('#nickform').submit((e) => {
+                    e.preventDefault();
+                    let nicknameText = $('#n').val().trim();
+                    if (nicknameText.length > 0) {
+                        nickname = nicknameText;
+                        socket.emit('set nickname', nicknameText);
+                        $('#nickform button').attr('disabled', true);
+                    }
+                });
 
-        $('#m').keypress((e) => {
-          socket.emit('typing');
-        });
+                $('#m').keydown((e) => {
+                    if ($('#m').val().length == 0) {
+                        socket.emit('stoptyping');
+                    } else {
+                        socket.emit('typing');
+                    }
+                });
 
-        $('#mform').submit((e) => {
-          e.preventDefault();
-          socket.emit('chat message', $('#m').val());
-          socket.emit('stoptyping');
-          $('#m').val('');
-          return false;
-        });
+                $('#mform').submit((e) => {
+                    e.preventDefault();
+                    socket.emit('chat message', $('#m').val());
+                    socket.emit('stoptyping');
+                    $('#m').val('');
+                    return false;
+                });
 
-        socket.on('nickname validity', (isValid) => {
-          if (isValid) {
-            $('#mform').show();
-            $('#nickform').remove();
-          } else {
-            $('#nickform button').attr('disabled', false);
-            $('#nlabel').text('Invalid or taken nickname');
-          }
-        });
+                socket.on('nickname validity', (isValid) => {
+                    if (isValid) {
+                        $('#mform').show();
+                        $('#nickform').remove();
+                    } else {
+                        $('#nickform button').attr('disabled', false);
+                        $('#nlabel').text('Invalid or taken nickname');
+                    }
+                });
 
-        socket.on('users online', (users) => {
-          let innerHtml = 'Online: ';
-          users.forEach(user => {
-            if (user == nickname) {
-              innerHtml += user + ' ';
-            } else {
-              innerHtml += '<a href="#" id="' + user + '">' + user + '</a> ';
-            }
-          });
-          $('#isOnline').html(innerHtml);
-          users.forEach(user => {
-            $('#' + user).click(() => {
-              $('#m').val('/w ' + user + ' ').focus();
+                socket.on('users online', (users) => {
+                    let innerHtml = 'Online: ';
+                    users.forEach(user => {
+                        if (user == nickname) {
+                            innerHtml += user + ' ';
+                        } else {
+                            innerHtml += '<a href="#" id="' + user + '">' + user + '</a> ';
+                        }
+                    });
+                    $('#isOnline').html(innerHtml);
+                    users.forEach(user => {
+                        $('#' + user).click(() => {
+                            $('#m').val('/w ' + user + ' ').focus();
+                        });
+                    });
+                });
+
+                socket.on('chat message', (nickname, message) => {
+                    $('#messages').append($('<li>').text(nickname + ': ' + message));
+                });
+
+                socket.on('system message', (message) => {
+                    $('#messages').append($('<li>').text(message));
+                });
+
+                socket.on('typing', (usersTyping) => {
+                    let text = '';
+                    usersTyping.forEach(user => {
+                        if (user != nickname) {
+                            text += user + ' is typing...\n';
+                        }
+                    });
+                    $('#isTyping').text(text);
+                });
             });
-          });
-        });
-
-        socket.on('chat message', (nickname, message) => {
-          $('#messages').append($('<li>').text(nickname + ': ' + message));
-        });
-
-        socket.on('system message', (message) => {
-          $('#messages').append($('<li>').text(message));
-        });
-
-        socket.on('typing', (usersTyping) => {
-          let text = '';
-          usersTyping.forEach(user => {
-            if (user != nickname) {
-              text += user + ' is typing...\n';
-            }
-          });
-          $('#isTyping').text(text);
-        });
-      });
-    </script>
-  </body>
+        </script>
+    </body>
 </html>
