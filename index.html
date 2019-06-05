@@ -31,6 +31,7 @@
                 });
 
                 $('#m').keydown((e) => {
+                    console.log($('#m').val(), $('#m').val().length);
                     if ($('#m').val().length == 0) {
                         socket.emit('stoptyping');
                     } else {
