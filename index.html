@@ -34,7 +34,8 @@
                     socket.emit('typing');
                 });
 
-                $('#m').change(() => {
+                $('#m').on('input', () => {
+                    console.log('change');
                     if ($('#m').val().length == 0) socket.emit('stoptyping');
                 });
 
