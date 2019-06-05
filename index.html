@@ -31,7 +31,9 @@
                 });
 
                 $('#m').keydown((e) => {
-                    socket.emit('typing');
+                    if (e.keyCode != 8 && e.keyCode != 46) {
+                        socket.emit('typing');
+                    }
                 });
 
                 $('#m').keyup((e) => {
