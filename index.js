@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('typing', (nickname) => {
+  socket.on('typing', () => {
     if (nickname == null) return;
     if (!usersTyping.includes(nickname)) {
       usersTyping.push(nickname);
