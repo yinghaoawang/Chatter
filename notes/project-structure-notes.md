@@ -7,7 +7,20 @@ I will study and try my best to understand the structure and thought put into bu
 Blindly copying principles will not help me in the long run. I plan on separating perceivied methods of structure
 into chunks, so I can easily apply them to my other projects. The project I am going to learn from is [obsidio](https://github.com/penumbragames/obsidio).
 
+*Update:*
+I found out that the creators work on a multitude of similar multiplayer web games. Their latest edition is [browsercraft](https://github.com/penumbragames/browsercraft)
+which utilizes session storage and MongoDB to user credentials. I will not be doing user auth, but I do intend on studying
+browsercraft's structure.
+
 # Chunks
+<!-- TODO rewrite this for browsercraft -->
+### Node Modules/Dependencies
+The team didn't use very much dependencies. They kept it clean and simple. I like it.
+- express as the server
+- swig as the view
+- socket.io
+- morgan (middleware logger)
+
 ### Dev mode
 There is a global flag named "dev_mode" that determines if production or development features are to be loaded or ran.
 
@@ -46,3 +59,17 @@ requires that dependency in this file. I should put my chat app logic in a separ
 6. Server side game loop
     - setInterval of the game object's methods update and sendState. FRAME_RATE as the interval
 7. Begin listening express server
+
+### Documentation
+Everything is well organized so documentation is helpful and not overbearing
+
+### Open Source
+They provided a script to find TODOs so other people can work on the project.
+Only thing they ask of is follow coding conventions, and to document any code written.
+
+### Static, Shared, and Server directories
+The static directory contains files to be run on the client. It is static on express
+
+The server directory contains files to be run on the server
+
+The shared directory contains files that may be run on both the client and the server. It is static on express
